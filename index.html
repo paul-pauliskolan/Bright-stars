@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Star Catalog — 50 Bright Stars</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :focus-visible {
+      outline: 2px solid;
+      outline-offset: 2px;
+    }
+
+    th button {
+      width: 100%;
+      text-align: left;
+    }
+
+    .sort-ind {
+      margin-left: .25rem;
+      opacity: .6;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+  <main class="max-w-7xl xl:max-w-screen-2xl mx-auto p-6 w-full">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold">Interactive Star Catalog — 50 Bright Stars</h1>
+      <p class="text-slate-600 mt-2">Click a column header to sort. Use the checkboxes to include stars visible from the
+        Northern and/or Southern sky. Values are approximate, rounded; luminosity in solar units (L☉), radius in solar
+        radii (R☉), mass in solar masses (M☉), age in billions of years (Gyr).</p>
+    </header>
+
+    <!-- Controls -->
+    <section class="mb-4 grid gap-3 md:grid-cols-4">
+      <label class="inline-flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white shadow-sm">
+        <input type="checkbox" id="chkNorth" class="h-4 w-4" checked>
+        <span class="text-sm font-medium">Include Northern-sky stars</span>
+      </label>
+      <label class="inline-flex items-center gap-2 p-2 rounded-xl border border-slate-200 bg-white shadow-sm">
+        <input type="checkbox" id="chkSouth" class="h-4 w-4" checked>
+        <span class="text-sm font-medium">Include Southern-sky stars</span>
+      </label>
+      <label class="block">
+        <span class="text-sm font-medium">Search (name / constellation / notes)</span>
+        <input id="q" type="search" placeholder="e.g., Vega, giant, debris disk"
+          class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm" />
+      </label>
+      <label class="block">
+        <span class="text-sm font-medium">Filter by spectral type</span>
+        <select id="spectralFilter" class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 shadow-sm">
+          <option value="">All</option>
+          <option>A</option>
+          <option>F</option>
+          <option>G</option>
+          <option>K</option>
+          <option>M</option>
+          <option>B</option>
+          <option>O</option>
+        </select>
+      </label>
+    </section>
+
+    <!-- Table -->
+    <div class="overflow-x-auto xl:overflow-visible rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <table class="w-full xl:table-auto text-sm" id="starTable">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="p-3"><button data-key="name" class="font-semibold">Name<span class="sort-ind"></span></button>
+            </th>
+            <th class="p-3"><button data-key="constellation" class="font-semibold">Constellation<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="visibility" class="font-semibold">Visibility<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="mag" class="font-semibold">App. mag (m)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="distance" class="font-semibold">Distance (ly)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="lum" class="font-semibold">Luminosity (L☉)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="temp" class="font-semibold">Temperature (K)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="radius" class="font-semibold">Radius (R☉)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="mass" class="font-semibold">Mass (M☉)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="age" class="font-semibold">Age (Gyr)<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="spectral" class="font-semibold">Spectral type<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="starType" class="font-semibold">Star type<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="numStars" class="font-semibold"># Stars<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="exo" class="font-semibold">Exoplanets?<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="exoCount" class="font-semibold"># Planets<span
+                  class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="notes" class="font-semibold">Notes<span class="sort-ind"></span></button>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="tbody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+
+    <p class="text-xs text-slate-500 mt-3">Approximate data assembled for educational use. "Visibility" denotes which
+      hemisphere(s) the star is readily observable from: <em>Northern</em>, <em>Southern</em>, or <em>Both</em>.</p>
+  </main>
+
+  <script src="stars-data.js"></script>
+  <script>
+    // --- Dataset (loaded from external file `stars-data.js`) ---
+
+    // --- State ---
+    let sortKey = 'name'
+    let sortDir = 'asc' // 'asc' | 'desc'
+
+    const q = document.getElementById('q')
+    const chkNorth = document.getElementById('chkNorth')
+    const chkSouth = document.getElementById('chkSouth')
+    const spectralFilter = document.getElementById('spectralFilter')
+    const tbody = document.getElementById('tbody')
+
+    // --- Helpers ---
+    function compare(a, b) {
+      const va = a[sortKey]
+      const vb = b[sortKey]
+      // numeric vs string handling
+      const na = typeof va === 'number'
+      const nb = typeof vb === 'number'
+      let res
+      if (na && nb) res = va - vb
+      else res = String(va).localeCompare(String(vb))
+      return sortDir === 'asc' ? res : -res
+    }
+
+    function formatBool(b) { return b ? 'Yes' : 'No' }
+    function formatNum(x) {
+      if (x == null || Number.isNaN(x)) return '—'
+      if (x >= 1000) return x.toLocaleString()
+      return x.toString()
+    }
+
+    // Return the most-massive component's star type by inspecting the spectral string.
+    function parseSpectralPart(part) {
+      const m = part.trim().match(/^([OBAFGKM])\s*([0-9]*\.?[0-9]*)/i)
+      if (!m) return null
+      return { letter: m[1].toUpperCase(), number: m[2] ? parseFloat(m[2]) : 0, raw: part.trim() }
+    }
+
+    function mostMassiveType(s) {
+      const sp = (s.spectral || '').toString()
+      if (sp.includes('+')) {
+        const parts = sp.split('+').map(p => p.trim()).filter(Boolean)
+        const order = { O: 0, B: 1, A: 2, F: 3, G: 4, K: 5, M: 6 }
+        let best = parts[0]
+        let bestRank = 999
+        let bestNum = 999
+        parts.forEach(p => {
+          const info = parseSpectralPart(p)
+          if (!info) return
+          const rank = order[info.letter] === undefined ? 999 : order[info.letter]
+          const num = isNaN(info.number) ? 999 : info.number
+          if (rank < bestRank || (rank === bestRank && num < bestNum)) {
+            best = info.raw
+            bestRank = rank
+            bestNum = num
+          }
+        })
+        return best
+      }
+      // If there's no composite spectral string, prefer an explicit starType if it's specific;
+      // otherwise fall back to the spectral field or existing starType.
+      if (s.starType && !/multiple|binary|pair|complex/i.test(s.starType)) return s.starType
+      return s.spectral || s.starType || '—'
+    }
+
+    function displayNumStars(s) {
+      const sp = (s.spectral || '').toString()
+      if (sp.includes('+')) return sp.split('+').map(p => p.trim()).filter(Boolean).length
+      if (typeof s.numStars === 'number' && Number.isFinite(s.numStars)) return s.numStars
+      return 1
+    }
+
+    // Ensure each star object has a numeric `numStars` property.
+    // Only compute/assign `starType` when the data does not already provide one.
+    // This preserves explicit/descriptive values written in `stars-data.js` (e.g. "Multiple (sextuple)").
+    stars.forEach(s => {
+      if (s.numStars == null) s.numStars = displayNumStars(s)
+      const current = (s.starType || '').toString().trim()
+      if (!current || current === '—') {
+        // Only fill in when missing/placeholder
+        s.starType = mostMassiveType(s)
+      }
+      // otherwise keep the author-provided `starType` exactly as given
+    })
+
+    function visibleFilter(s) {
+      const north = chkNorth.checked
+      const south = chkSouth.checked
+      if (north && south) return true // show all
+      if (north && !south) return s.visibility === 'Northern' || s.visibility === 'Both'
+      if (!north && south) return s.visibility === 'Southern' || s.visibility === 'Both'
+      return false // none checked
+    }
+
+    function spectralStartsWithFilter(s) {
+      const f = spectralFilter.value.trim()
+      if (!f) return true
+      return s.spectral.trim().toUpperCase().startsWith(f.toUpperCase())
+    }
+
+    function searchFilter(s) {
+      const term = q.value.trim().toLowerCase()
+      if (!term) return true
+      const hay = (s.name + ' ' + s.constellation + ' ' + s.notes + ' ' + s.spectral + ' ' + s.starType).toLowerCase()
+      return hay.includes(term)
+    }
+
+    function currentRows() {
+      return stars
+        .filter(visibleFilter)
+        .filter(spectralStartsWithFilter)
+        .filter(searchFilter)
+        .slice()
+        .sort(compare)
+    }
+
+    function render() {
+      const rows = currentRows()
+      tbody.innerHTML = rows.map(s => `
+        <tr class="hover:bg-slate-50">
+          <td class="p-3 font-medium">${s.name}</td>
+          <td class="p-3">${s.constellation}</td>
+          <td class="p-3">${s.visibility}</td>
+          <td class="p-3 text-right">${s.mag}</td>
+          <td class="p-3 text-right">${formatNum(s.distance)}</td>
+          <td class="p-3 text-right">${formatNum(s.lum)}</td>
+          <td class="p-3 text-right">${formatNum(s.temp)}</td>
+          <td class="p-3 text-right">${formatNum(s.radius)}</td>
+          <td class="p-3 text-right">${formatNum(s.mass)}</td>
+          <td class="p-3 text-right">${formatNum(s.age)}</td>
+          <td class="p-3">${s.spectral}</td>
+          <td class="p-3">${s.starType}</td>
+          <td class="p-3 text-right">${displayNumStars(s)}</td>
+          <td class="p-3">${formatBool(s.exo)}</td>
+          <td class="p-3 text-right">${s.exoCount}</td>
+          <td class="p-3">${s.notes}</td>
+        </tr>
+      `).join('')
+      updateSortIndicators()
+    }
+
+    function updateSortIndicators() {
+      document.querySelectorAll('th button').forEach(btn => {
+        const ind = btn.querySelector('.sort-ind')
+        if (!ind) return
+        if (btn.dataset.key === sortKey) {
+          ind.textContent = sortDir === 'asc' ? '▲' : '▼'
+          ind.style.opacity = 1
+        } else {
+          ind.textContent = ''
+          ind.style.opacity = .6
+        }
+      })
+    }
+
+    // --- Events ---
+    document.querySelectorAll('th button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.key
+        if (sortKey === key) sortDir = (sortDir === 'asc') ? 'desc' : 'asc'
+        else { sortKey = key; sortDir = 'asc' }
+        render()
+      })
+    });
+
+    [q, chkNorth, chkSouth, spectralFilter].forEach(el => el.addEventListener('input', render))
+
+    // Initial render
+    render();
+  </script>
+</body>
+
+</html>
