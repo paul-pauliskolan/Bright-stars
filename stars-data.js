@@ -122,6 +122,8 @@ const stars = [
     spectral: "B8 Ia",
     numStars: 4,
     starType: "Blue supergiant",
+    uncertainty: [1, 2], // 1=distance/parallax disagreement, 2=multiplicity disputed
+    sources: ["https://en.wikipedia.org/wiki/Rigel"],
     exo: false,
     exoCount: 0,
     notes: "Extremely luminous; short-lived.",
@@ -175,6 +177,8 @@ const stars = [
     age: 0.01,
     spectral: "M1–2 Iab",
     starType: "Red supergiant",
+    uncertainty: [1, 4], // distance uncertain; physical parameter variance
+    sources: ["https://en.wikipedia.org/wiki/Betelgeuse"],
     exo: false,
     exoCount: 0,
     notes: "Semiregular variable; pre-supernova.",
@@ -230,6 +234,10 @@ const stars = [
     spectral: "B0.5 IV",
     numStars: 6,
     starType: "Blue subgiant",
+    // Per-component spectral types (α Cru system has multiple components).
+    // These follow the order shown in literature: Aa, Ab, A2, C a/b, D (approx).
+    // Values are illustrative and used to color/size the legend dots for the system.
+    components: ["B0.5 IV", "B7?V", "B1 Vn", "B4 V", "G?V", "M0 V"],
     exo: false,
     exoCount: 0,
     notes: "Brightest in Southern Cross.",
@@ -336,6 +344,8 @@ const stars = [
     age: 0.006,
     spectral: "A2 Ia",
     starType: "White supergiant",
+    uncertainty: [1, 3], // 1=distance/parallax disagreement, 3=spectral/luminosity disagreement
+    sources: ["https://en.wikipedia.org/wiki/Deneb"],
     exo: false,
     exoCount: 0,
     notes: "One of the most luminous visible stars.",
@@ -424,6 +434,10 @@ const stars = [
     spectral: "A1 V",
     numStars: 6,
     starType: "Multiple (sextuple)",
+    // Per-component spectral types for Castor (Aa+Ab, Ba+Bb, Ca+Cb = YY Gem).
+    // According to literature/Wikipedia the bright primaries are A-type (A1V, Am)
+    // and the companions are red dwarfs (dM1e); use those for accurate coloring.
+    components: ["A1 V", "dM1e", "Am", "dM1e", "dM1e", "dM1e"],
     exo: false,
     exoCount: 0,
     notes: "Complex six-star system.",
@@ -494,6 +508,8 @@ const stars = [
     spectral: "B0 Ia",
     numStars: 3,
     starType: "Blue supergiant",
+    uncertainty: [1], // distance/parallax disagreement in literature
+    sources: ["https://en.wikipedia.org/wiki/Alnilam"],
     exo: false,
     exoCount: 0,
     notes: "Middle star of Orion's Belt.",
@@ -512,6 +528,8 @@ const stars = [
     spectral: "O9.7 Ib",
     numStars: 3,
     starType: "Blue supergiant",
+    uncertainty: [1, 2], // distance disagreement; multiple components
+    sources: ["https://en.wikipedia.org/wiki/Alnitak"],
     exo: false,
     exoCount: 0,
     notes: "Left-most of Orion's Belt.",
@@ -530,6 +548,8 @@ const stars = [
     spectral: "O9.5 II",
     numStars: 3,
     starType: "Blue giant",
+    uncertainty: [1], // Hipparcos vs cluster/Gaia distance discrepancies
+    sources: ["https://en.wikipedia.org/wiki/Mintaka"],
     exo: false,
     exoCount: 0,
     notes: "Right-most of Orion's Belt.",
@@ -548,6 +568,8 @@ const stars = [
     spectral: "B0.5 Ia",
     starType: "Supergiant",
     numStars: 1,
+    uncertainty: [1], // distance estimate varies between sources
+    sources: ["https://en.wikipedia.org/wiki/Saiph"],
     exo: false,
     exoCount: 0,
     notes: "Knee of Orion.",
@@ -704,6 +726,8 @@ const stars = [
     age: 0.02,
     spectral: "F5 Ib",
     starType: "Supergiant",
+    uncertainty: [1], // file distance differs from common literature value (~510 ly)
+    sources: ["https://en.wikipedia.org/wiki/Alpha_Persei"],
     exo: false,
     exoCount: 0,
     notes: "Alpha Persei cluster member.",
@@ -721,6 +745,8 @@ const stars = [
     age: 0.1,
     spectral: "B9 II",
     starType: "Bright giant",
+    uncertainty: [1], // distance in file differs from some catalog values
+    sources: ["https://en.wikipedia.org/wiki/Kaus_Australis"],
     exo: false,
     exoCount: 0,
     notes: "Brightest in Sagittarius.",

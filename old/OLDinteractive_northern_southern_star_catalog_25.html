@@ -186,53 +186,6 @@
       return 1
     }
 
-    // Human-readable legend for uncertainty codes
-    function uncertaintyText(s) {
-      const legend = {
-        1: 'Distance / parallax disagreement',
-        2: 'Multiplicity / companions disputed',
-        3: 'Spectral / luminosity disagreement',
-        4: 'Physical parameter variance',
-        5: 'Tentative detection'
-      }
-      if (!s || !s.uncertainty || !s.uncertainty.length) return ''
-      return s.uncertainty.map(c => legend[c] || `Unknown (${c})`).join('; ')
-    }
-
-    // Return a color for a spectral class letter (O B A F G K M).
-    function colorForSpectral(letter) {
-      if (!letter) return '#999999'
-      const l = letter.toUpperCase()
-      // Astronomical-ish colors (illustrative). Can be tuned.
-      const map = {
-        O: '#9bb0ff',
-        B: '#8fb7ff',
-        A: '#dbe9ff',
-        F: '#fff7df',
-        G: '#ffd27a',
-        K: '#ffb26b',
-        M: '#ff6b6b'
-      }
-      return map[l] || '#999999'
-    }
-
-    // Return an illustrative dot size (px) for a spectral class letter.
-    // These sizes are purely pictorial (not to-scale) and chosen so hotter
-    // stars appear distinct from cooler stars.
-    function sizeForSpectral(letter) {
-      if (!letter) return 10
-      switch (letter.toUpperCase()) {
-        case 'O': return 18
-        case 'B': return 16
-        case 'A': return 14
-        case 'F': return 13
-        case 'G': return 12
-        case 'K': return 11
-        case 'M': return 10
-        default: return 10
-      }
-    }
-
     // Ensure each star object has a numeric `numStars` property.
     // Only compute/assign `starType` when the data does not already provide one.
     // This preserves explicit/descriptive values written in `stars-data.js` (e.g. "Multiple (sextuple)").
@@ -279,38 +232,9 @@
 
     function render() {
       const rows = currentRows()
-      tbody.innerHTML = rows.map(s => {
-        // For the user's test: show spectral-colored dots in the first column
-        // for any star that provides a `components` array. This enables Acrux and
-        // Castor (and any future systems) to render one dot per component.
-        const showDot = Array.isArray(s.components) && s.components.length > 0
-        let dotHtml = ''
-        if (showDot) {
-          const comps = Array.isArray(s.components) && s.components.length ? s.components : null
-          const count = comps ? comps.length : (displayNumStars(s) || 1)
-          let dots = ''
-          // Special-case: for Castor we want all component dots to be small
-          // and uniform (the user prefers six small stars). Detect by name.
-          const isCastor = /castor/i.test(String(s.name))
-          for (let i = 0; i < count; i++) {
-            const compSpec = comps ? comps[i] : s.spectral
-            const parsed = parseSpectralPart((compSpec || '').toString())
-            const letter = parsed && parsed.letter ? parsed.letter : ((s.spectral || '').toString().trim().charAt(0) || '?')
-            const color = colorForSpectral(letter)
-            // If Castor, force a small illustrative size; otherwise use spectral size.
-            const size = isCastor ? 10 : sizeForSpectral(letter)
-            const r = Math.max(2, Math.round(size / 2) - 1)
-            dots += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + (r * 2 + 4) + ' ' + (r * 2 + 4) + '" xmlns="http://www.w3.org/2000/svg" class="rounded-full">'
-            dots += '<circle cx="' + (r + 2) + '" cy="' + (r + 2) + '" r="' + r + '" fill="' + color + '" stroke="#222" stroke-opacity="0.12"/>'
-            dots += '</svg>'
-            if (i < count - 1) dots += '<span class="mx-0.5" aria-hidden></span>'
-          }
-          // Prevent wrapping/overlap: keep dots on one line and add a small gap.
-          dotHtml = '<span class="inline-flex items-center mr-2 align-middle" style="gap:6px; white-space:nowrap;" aria-hidden>' + dots + '</span>'
-        }
-        return `
+      tbody.innerHTML = rows.map(s => `
         <tr class="hover:bg-slate-50">
-          <td class="p-3 font-medium">${dotHtml}${s.name}</td>
+          <td class="p-3 font-medium">${s.name}</td>
           <td class="p-3">${s.constellation}</td>
           <td class="p-3">${s.visibility}</td>
           <td class="p-3 text-right">${s.mag}</td>
@@ -325,21 +249,9 @@
           <td class="p-3 text-right">${displayNumStars(s)}</td>
           <td class="p-3">${formatBool(s.exo)}</td>
           <td class="p-3 text-right">${s.exoCount}</td>
-          <td class="p-3">
-            <div class="relative inline-block group" tabindex="0">
-              <span>${s.notes || ''}</span>
-              ${s.uncertainty && s.uncertainty.length ? (
-            '<span class="ml-2 text-amber-600 font-semibold" aria-hidden>⚠</span>' +
-            '<div class="absolute z-10 left-0 mt-2 w-72 p-3 rounded-lg bg-slate-800 text-white text-xs shadow-lg opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100 group-hover:pointer-events-auto hover:opacity-100 hover:pointer-events-auto focus:opacity-100 focus:pointer-events-auto" role="dialog" aria-hidden="true">' +
-            '<div class="font-semibold">Uncertainty</div>' +
-            '<div class="mt-1">' + uncertaintyText(s) + '</div>' +
-            (s.sources ? ('<div class="mt-2 text-xxs text-slate-300"><a href="' + s.sources[0] + '" target="_blank" rel="noopener" class="underline">source</a></div>') : '') +
-            '</div>'
-          ) : ''}
-            </div>
-          </td>
+          <td class="p-3">${s.notes}</td>
         </tr>
-      `}).join('')
+      `).join('')
       updateSortIndicators()
     }
 
