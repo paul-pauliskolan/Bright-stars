@@ -91,7 +91,7 @@ const stars = [
     notes: "Debris disk; fast rotator.",
   },
   {
-    name: "Capella (A/B)",
+    name: "Capella",
     constellation: "Auriga",
     visibility: "Northern",
     mag: 0.08,
@@ -104,6 +104,16 @@ const stars = [
     spectral: "G8 III + G0 III",
     numStars: 4,
     starType: "Yellow giant binary",
+    // Per-component objects for Capella (Aa+Ab are the bright G-type giants;
+    // the other two are fainter companions). These are illustrative so the
+    // UI can render four colored dots matching the system (two large yellow
+    // giants and two smaller red/orange companions).
+    components: [
+      { name: "Aa", spec: "G8 III", visualSize: 36 },
+      { name: "Ab", spec: "G0 III", visualSize: 32 },
+      { name: "Ba", spec: "M0 V", visualSize: 12 },
+      { name: "Bb", spec: "M2 V", visualSize: 12 },
+    ],
     exo: false,
     exoCount: 0,
     notes: "Close pair of yellow giants.",
@@ -124,6 +134,17 @@ const stars = [
     starType: "Blue supergiant",
     uncertainty: [1, 2], // 1=distance/parallax disagreement, 2=multiplicity disputed
     sources: ["https://en.wikipedia.org/wiki/Rigel"],
+    // Per-component breakdown based on cataloged system: primary Rigel A (B8 Ia)
+    // and a nearby BC triple composed of hot B-type main-sequence stars
+    // (Ba, Bb spectroscopic pair; C close visual). Represent as four
+    // components (A, Ba, Bb, C) so the UI can render one large blue supergiant
+    // and three smaller blue/white companions.
+    components: [
+      { name: "A", spec: "B8 Ia", visualSize: 44 },
+      { name: "Ba", spec: "B9 V", visualSize: 18 },
+      { name: "Bb", spec: "B9 V", visualSize: 16 },
+      { name: "C", spec: "B9 V", visualSize: 16 },
+    ],
     exo: false,
     exoCount: 0,
     notes: "Extremely luminous; short-lived.",
@@ -437,7 +458,17 @@ const stars = [
     // Per-component spectral types for Castor (Aa+Ab, Ba+Bb, Ca+Cb = YY Gem).
     // According to literature/Wikipedia the bright primaries are A-type (A1V, Am)
     // and the companions are red dwarfs (dM1e); use those for accurate coloring.
-    components: ["A1 V", "dM1e", "Am", "dM1e", "dM1e", "dM1e"],
+    // Per-component objects include a name, spectral string and an illustrative
+    // visualSize (px) to control the on-page dot size so the UI can match
+    // the supplied illustration. Order: Aa, Ab, Ba, Bb, Ca, Cb.
+    components: [
+      { name: "Aa", spec: "A1 V", visualSize: 36 },
+      { name: "Ab", spec: "dM1e", visualSize: 12 },
+      { name: "Ba", spec: "Am", visualSize: 30 },
+      { name: "Bb", spec: "dM1e", visualSize: 12 },
+      { name: "Ca", spec: "dM1e", visualSize: 12 },
+      { name: "Cb", spec: "dM1e", visualSize: 12 },
+    ],
     exo: false,
     exoCount: 0,
     notes: "Complex six-star system.",

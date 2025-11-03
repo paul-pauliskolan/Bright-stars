@@ -77,6 +77,8 @@
                   class="sort-ind"></span></button></th>
             <th class="p-3"><button data-key="mag" class="font-semibold">App. mag (m)<span
                   class="sort-ind"></span></button></th>
+            <th class="p-3"><button data-key="numStars" class="font-semibold"># Stars<span
+                  class="sort-ind"></span></button></th>
             <th class="p-3"><button data-key="distance" class="font-semibold">Distance (ly)<span
                   class="sort-ind"></span></button></th>
             <th class="p-3"><button data-key="lum" class="font-semibold">Luminosity (L☉)<span
@@ -147,9 +149,14 @@
 
     // Return the most-massive component's star type by inspecting the spectral string.
     function parseSpectralPart(part) {
-      const m = part.trim().match(/^([OBAFGKM])\s*([0-9]*\.?[0-9]*)/i)
+      // Be permissive: locate the first spectral-letter (O B A F G K M)
+      // anywhere in the string so forms like "dM1e", "Am", "B7?V" etc
+      // are parsed correctly.
+      if (!part) return null
+      const s = part.toString().trim()
+      const m = s.match(/([OBAFGKM])\s*([0-9]*\.?[0-9]*)/i)
       if (!m) return null
-      return { letter: m[1].toUpperCase(), number: m[2] ? parseFloat(m[2]) : 0, raw: part.trim() }
+      return { letter: m[1].toUpperCase(), number: m[2] ? parseFloat(m[2]) : 0, raw: s }
     }
 
     function mostMassiveType(s) {
@@ -180,9 +187,10 @@
     }
 
     function displayNumStars(s) {
+      // Prefer an explicit `numStars` when provided by the data author.
+      if (typeof s.numStars === 'number' && Number.isFinite(s.numStars) && s.numStars > 0) return s.numStars
       const sp = (s.spectral || '').toString()
       if (sp.includes('+')) return sp.split('+').map(p => p.trim()).filter(Boolean).length
-      if (typeof s.numStars === 'number' && Number.isFinite(s.numStars)) return s.numStars
       return 1
     }
 
@@ -201,19 +209,20 @@
 
     // Return a color for a spectral class letter (O B A F G K M).
     function colorForSpectral(letter) {
-      if (!letter) return '#999999'
+      // Return a consistent, perceptually-ordered palette for spectral classes.
+      // Palette chosen to be distinctive and reasonably accessible on light backgrounds.
+      if (!letter) return '#9aa0a6' // neutral grey for unknown
       const l = letter.toUpperCase()
-      // Astronomical-ish colors (illustrative). Can be tuned.
       const map = {
-        O: '#9bb0ff',
-        B: '#8fb7ff',
-        A: '#dbe9ff',
-        F: '#fff7df',
-        G: '#ffd27a',
-        K: '#ffb26b',
-        M: '#ff6b6b'
+        O: '#9fbfff', // very hot: blue
+        B: '#a6c8ff', // hot: pale blue
+        A: '#f8fbff', // white / bluish-white
+        F: '#fff7e6', // yellow-white
+        G: '#fff2a8', // yellow (Sun-like)
+        K: '#ffd5a8', // orange
+        M: '#ff9a88'  // red
       }
-      return map[l] || '#999999'
+      return map[l] || '#9aa0a6'
     }
 
     // Return an illustrative dot size (px) for a spectral class letter.
@@ -293,14 +302,33 @@
           // and uniform (the user prefers six small stars). Detect by name.
           const isCastor = /castor/i.test(String(s.name))
           for (let i = 0; i < count; i++) {
-            const compSpec = comps ? comps[i] : s.spectral
-            const parsed = parseSpectralPart((compSpec || '').toString())
-            const letter = parsed && parsed.letter ? parsed.letter : ((s.spectral || '').toString().trim().charAt(0) || '?')
+            // Each component may be a string (spec) or an object {name, spec, visualSize}.
+            const compEntry = comps ? comps[i] : s.spectral
+            let compSpec = ''
+            let compName = ''
+            let forcedSize = null
+            if (typeof compEntry === 'string') {
+              compSpec = compEntry
+            } else if (compEntry && typeof compEntry === 'object') {
+              compSpec = compEntry.spec || ''
+              compName = compEntry.name || ''
+              forcedSize = compEntry.visualSize || null
+            }
+            // Parse the component spec first; if that fails try the system spectral entry.
+            let parsed = parseSpectralPart((compSpec || '').toString())
+            if (!parsed) parsed = parseSpectralPart((s.spectral || '').toString())
+            const letter = parsed && parsed.letter ? parsed.letter : null
             const color = colorForSpectral(letter)
-            // If Castor, force a small illustrative size; otherwise use spectral size.
-            const size = isCastor ? 10 : sizeForSpectral(letter)
+            // Determine size: prefer explicit visualSize, else for Castor fallback
+            // to small uniform size if desired, otherwise use spectral size.
+            let size = forcedSize != null ? forcedSize : (isCastor ? 10 : sizeForSpectral(letter))
+            // If the provided visualSize is 0 or falsy, fall back to spectral size
+            if (!size) size = sizeForSpectral(letter)
             const r = Math.max(2, Math.round(size / 2) - 1)
-            dots += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + (r * 2 + 4) + ' ' + (r * 2 + 4) + '" xmlns="http://www.w3.org/2000/svg" class="rounded-full">'
+            // Add title for accessibility / quick tooltip with component name/spec
+            let titleAttr = ''
+            if (compName || compSpec) titleAttr = ' title="' + (compName ? compName + ' — ' : '') + compSpec + '"'
+            dots += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + (r * 2 + 4) + ' ' + (r * 2 + 4) + '" xmlns="http://www.w3.org/2000/svg" class="rounded-full"' + titleAttr + '>'
             dots += '<circle cx="' + (r + 2) + '" cy="' + (r + 2) + '" r="' + r + '" fill="' + color + '" stroke="#222" stroke-opacity="0.12"/>'
             dots += '</svg>'
             if (i < count - 1) dots += '<span class="mx-0.5" aria-hidden></span>'
@@ -314,6 +342,7 @@
           <td class="p-3">${s.constellation}</td>
           <td class="p-3">${s.visibility}</td>
           <td class="p-3 text-right">${s.mag}</td>
+          <td class="p-3 text-right">${displayNumStars(s)}</td>
           <td class="p-3 text-right">${formatNum(s.distance)}</td>
           <td class="p-3 text-right">${formatNum(s.lum)}</td>
           <td class="p-3 text-right">${formatNum(s.temp)}</td>
@@ -322,7 +351,6 @@
           <td class="p-3 text-right">${formatNum(s.age)}</td>
           <td class="p-3">${s.spectral}</td>
           <td class="p-3">${s.starType}</td>
-          <td class="p-3 text-right">${displayNumStars(s)}</td>
           <td class="p-3">${formatBool(s.exo)}</td>
           <td class="p-3 text-right">${s.exoCount}</td>
           <td class="p-3">
