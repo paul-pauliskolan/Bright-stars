@@ -338,7 +338,7 @@
         }
         return `
         <tr class="hover:bg-slate-50">
-          <td class="p-3 font-medium">${dotHtml}${s.name}</td>
+          <td class="p-3 font-medium">${showDot ? ('<div class="flex flex-col items-center">' + dotHtml + '<div class="mt-1 font-medium text-center">' + s.name + '</div></div>') : ('<div class="font-medium">' + s.name + '</div>')}</td>
           <td class="p-3">${s.constellation}</td>
           <td class="p-3">${s.visibility}</td>
           <td class="p-3 text-right">${s.mag}</td>
