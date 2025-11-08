@@ -19,7 +19,19 @@ const stars = [
     starType: "Main sequence",
     exo: false,
     exoCount: 0,
-    notes: "Brightest night star; binary with white dwarf Sirius B.",
+    // Sirius is a well-studied binary: bright main-sequence Sirius A and
+    // the white-dwarf companion Sirius B. Keep numeric fields unchanged
+    // and add conservative per-component rendering + provenance.
+    components: [
+      { name: "A", spec: "A1 V", visualSize: 38 },
+      { name: "B", spec: "DA2 (white dwarf)", visualSize: 12 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Sirius",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Sirius",
+    ],
+    notes:
+      "Binary system: Sirius A (A1 V) + Sirius B (white dwarf). Some historical claims of additional faint companions remain unconfirmed; see sources.",
   },
   {
     name: "Canopus",
@@ -36,7 +48,17 @@ const stars = [
     starType: "Supergiant",
     exo: false,
     exoCount: 0,
-    notes: "Second brightest star.",
+    // Canopus is generally treated as a single bright F-type supergiant.
+    // No well-established close stellar companions; a candidate wide
+    // common-proper-motion M-dwarf was reported (Mamajek 2014) at very
+    // large projected separation and is not considered a bound close
+    // companion. Keep numeric parameters unchanged and add provenance.
+    sources: [
+      "https://en.wikipedia.org/wiki/Canopus",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Canopus",
+    ],
+    notes:
+      "Bright F-type supergiant (Canopus). No confirmed close stellar companion; a candidate wide common-proper-motion M-dwarf has been reported but is at very large projected separation (see sources).",
   },
   {
     name: "Arcturus",
@@ -53,7 +75,18 @@ const stars = [
     starType: "Red giant",
     exo: false,
     exoCount: 0,
-    notes: "Orange giant; very old population.",
+    // Arcturus is commonly listed as a single K-type red giant, but a
+    // marginal Hipparcos astrometric detection and some radial-velocity
+    // studies have suggested a possible low-mass companion; results are
+    // inconclusive. We'll flag multiplicity as disputed (conservative)
+    // and add provenance rather than declaring a firm companion.
+    uncertainty: [2],
+    sources: [
+      "https://en.wikipedia.org/wiki/Arcturus",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Arcturus",
+    ],
+    notes:
+      "Bright K1.5 III red giant. Hipparcos astrometry gave a marginal companion detection and some radial-velocity studies have reported long-period signals; multiplicity remains inconclusive — see sources.",
   },
   {
     name: "Alpha Centauri",
@@ -69,9 +102,24 @@ const stars = [
     spectral: "G2 V",
     numStars: 3,
     starType: "Main sequence",
+    // Represent Alpha Centauri as a triple: the close binary AB (A: G2 V, B: K1 V)
+    // plus the distant but bound Proxima Centauri (C, a red dwarf). The UI will
+    // render one dot per component using the `components` array. We keep numeric
+    // astrophysical values unchanged and only add provenance + notes about
+    // Proxima's planets so the dataset remains conservative.
+    components: [
+      { name: "A", spec: "G2 V", visualSize: 36 },
+      { name: "B", spec: "K1 V", visualSize: 30 },
+      { name: "C (Proxima)", spec: "M5–M6 V", visualSize: 12 },
+    ],
     exo: true,
     exoCount: 1,
-    notes: "Part of Alpha Centauri system (Proxima b confirmed).",
+    sources: [
+      "https://en.wikipedia.org/wiki/Alpha_Centauri",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=alpha+centauri",
+    ],
+    notes:
+      "Triple system: Alpha Centauri A (G2 V) + B (K1 V) form the close binary AB; Proxima Centauri (α Cen C, M5–M6 V) is a distant, gravitationally bound red dwarf (Kervella et al. 2017). Proxima hosts confirmed planets (Proxima b and Proxima d); other candidate planets around A/B remain unconfirmed. See sources for details.",
   },
   {
     name: "Vega",
@@ -88,7 +136,17 @@ const stars = [
     starType: "Main sequence",
     exo: false,
     exoCount: 0,
-    notes: "Debris disk; fast rotator.",
+    // Vega: bright A0V star with a well-studied debris disk and no
+    // confirmed planets. There are tentative planet/period signals in
+    // the literature (e.g., a 2.43-day candidate signal) but these are
+    // unconfirmed; flag as tentative and add provenance.
+    sources: [
+      "https://en.wikipedia.org/wiki/Vega",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Vega",
+    ],
+    uncertainty: [5],
+    notes:
+      "A0 V main-sequence star with a debris disk. Rapid rotator seen nearly pole-on. No confirmed planets; some tentative planet signals have been reported but remain unconfirmed (see sources). JWST observations show the disk to be exceptionally smooth (2024–2025 results).",
   },
   {
     name: "Capella",
@@ -165,7 +223,17 @@ const stars = [
     starType: "Subgiant",
     exo: false,
     exoCount: 0,
-    notes: "White dwarf companion (Procyon B).",
+    // Procyon is a nearby binary: Procyon A (F5 IV–V) + Procyon B (white dwarf).
+    components: [
+      { name: "A", spec: "F5 IV–V", visualSize: 34 },
+      { name: "B", spec: "DQZ (white dwarf)", visualSize: 12 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Procyon",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Procyon",
+    ],
+    notes:
+      "Binary system: Procyon A (F5 IV–V) and a faint white-dwarf companion Procyon B (DQZ). Orbital elements and white-dwarf parameters are well-studied (see sources).",
   },
   {
     name: "Achernar",
@@ -183,7 +251,19 @@ const stars = [
     starType: "Main sequence",
     exo: false,
     exoCount: 0,
-    notes: "Rapid rotator; oblate.",
+    // Achernar is a binary: the rapid-rotating Be primary (A, B6 Vep)
+    // and a close A-type companion (B, A0–A3 V). Add per-component
+    // entries for rendering and provenance; numeric fields unchanged.
+    components: [
+      { name: "A", spec: "B6 Vep", visualSize: 40 },
+      { name: "B", spec: "A1–A3 V", visualSize: 18 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Achernar",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Achernar",
+    ],
+    notes:
+      "Rapid rotator; oblate. Binary system (A + close A-type companion B) — see sources.",
   },
   {
     name: "Betelgeuse",
@@ -209,20 +289,32 @@ const stars = [
     constellation: "Centaurus",
     visibility: "Southern",
     mag: 0.61,
-    distance: 390,
+    distance: 361,
     lum: 50000,
     temp: 25000,
     radius: 8,
     mass: 10,
     age: 0.014,
     spectral: "B1 III",
-    /* Beta Centauri has multiple confirmed components; sources list multiple
-       spectroscopic/visual components. Set to 4 based on cataloged components. */
-    numStars: 4,
-    starType: "Blue giant",
+    /* Beta Centauri is a triple system: the close spectroscopic pair
+       β Cen Aa + Ab (both ~B1 III) and a wider visual companion β Cen B
+       (spectral type commonly listed as ~B1 V). Use a 3-component
+       `components` array so the UI renders three dots for Hadar. */
+    numStars: 3,
+    starType: "Blue giant (triple)",
+    sources: [
+      "https://en.wikipedia.org/wiki/Beta_Centauri",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Beta+Centauri",
+    ],
+    components: [
+      { name: "Aa", spec: "B1 III", visualSize: 18 },
+      { name: "Ab", spec: "B1 III", visualSize: 16 },
+      { name: "B", spec: "B1 V", visualSize: 14 },
+    ],
     exo: false,
     exoCount: 0,
-    notes: "Massive triple system.",
+    notes:
+      "Triple system: Aa+Ab (spectroscopic B1 III pair) + B (visual, B1 V). Sources: Wikipedia, SIMBAD.",
   },
   {
     name: "Altair",
@@ -279,7 +371,20 @@ const stars = [
     starType: "Red giant",
     exo: false,
     exoCount: 0,
-    notes: "Orange giant; planet claim unconfirmed.",
+    // Aldebaran has a very faint reported companion (B) catalogued in
+    // double-star catalogs; there are also historic visual companions that
+    // proved to be optical. Surface a conservative A+B representation and
+    // keep the note about an unconfirmed planet claim.
+    components: [
+      { name: "A", spec: "K5 III", visualSize: 36 },
+      { name: "B", spec: "M2.5 V", visualSize: 12 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Aldebaran",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Aldebaran",
+    ],
+    notes:
+      "Orange giant; companion Aldebaran B (very faint, ~mag 13) is catalogued as part of the system; historic additional visual companions are mostly optical. Planet claim remains unconfirmed — see sources.",
   },
   {
     name: "Spica",
@@ -297,7 +402,19 @@ const stars = [
     starType: "Spectroscopic binary",
     exo: false,
     exoCount: 0,
-    notes: "Massive close pair.",
+    // Spica is a well-known close spectroscopic binary (B1III–IV + B2V).
+    // Add per-component entries and sources so UI shows the pair and we
+    // preserve provenance for the binary parameters.
+    components: [
+      { name: "A", spec: "B1 III–IV", visualSize: 36 },
+      { name: "B", spec: "B2 V", visualSize: 28 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Spica",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Spica",
+    ],
+    notes:
+      "Massive close spectroscopic binary (B1 III–IV + B2 V). Orbital period ~4.0145 d — see sources.",
   },
   {
     name: "Antares",
@@ -315,7 +432,21 @@ const stars = [
     starType: "Red supergiant",
     exo: false,
     exoCount: 0,
-    notes: "Rival of Mars; huge and cool.",
+    // Antares is a red supergiant primary with a hot, much fainter B-type
+    // companion (α Sco B). The system's orbit estimates vary; flag the
+    // multiplicity/orbit parameters as somewhat uncertain while recording
+    // the components and sources.
+    components: [
+      { name: "A", spec: "M1.5 Iab (Red supergiant)", visualSize: 48 },
+      { name: "B", spec: "B2.5 V", visualSize: 22 },
+    ],
+    uncertainty: [2],
+    sources: [
+      "https://en.wikipedia.org/wiki/Antares",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Antares",
+    ],
+    notes:
+      "Red supergiant primary (α Sco A) with a hot, faint B-type companion (α Sco B). Orbit solutions have varied and are considered somewhat uncertain — see sources.",
   },
   {
     name: "Pollux",
@@ -348,9 +479,18 @@ const stars = [
     spectral: "A3 V",
     numStars: 3,
     starType: "Main sequence",
-    exo: true,
-    exoCount: 1,
-    notes: "Famous debris ring; planet candidate reported.",
+    // Represent the system components so the UI renders three illustrative dots
+    // (A = primary A3 V; B = TW Piscis Austrini, K-type; C = LP 876-10, M-type).
+    // These component specs are illustrative to control the on-page colors/sizes.
+    components: [
+      { name: "A", spec: "A3 V", visualSize: 36 },
+      { name: "B", spec: "K4 V", visualSize: 14 },
+      { name: "C", spec: "M4 V", visualSize: 12 },
+    ],
+    // There is no confirmed exoplanet around Fomalhaut in this dataset.
+    exo: false,
+    exoCount: 0,
+    notes: "Famous debris ring; expanding dust cloud (no confirmed exoplanet).",
   },
   {
     name: "Deneb",
@@ -421,7 +561,20 @@ const stars = [
     starType: "Blue giant",
     exo: false,
     exoCount: 0,
-    notes: "Was much brighter a few Myr ago.",
+    // Epsilon CMa (Adhara) is a reported visual binary: A (Adhara, the bright
+    // B2 II primary) and a faint B component (~+7.5 mag) at ~7.5–7.9".
+    // The pair is listed in WDS and common catalogs; record per-component
+    // rendering and provenance. Keep primary numeric parameters unchanged.
+    components: [
+      { name: "A (Adhara)", spec: "B2 II", visualSize: 40 },
+      { name: "B", spec: "~A/F (mag ~7.5)", visualSize: 12 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Epsilon_Canis_Majoris",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Epsilon+Canis+Majoris",
+    ],
+    notes:
+      "Binary system (Adhara = ε CMa A) with a faint visual companion ε CMa B (~mag 7.5) at ~7.5–7.9 arcsec. The IAU-approved proper name 'Adhara' refers to the primary (A). Some catalogues report slightly different distance estimates (Hipparcos/Gaia reductions); see sources.",
   },
   {
     name: "Shaula (Lambda Sco)",
@@ -437,6 +590,12 @@ const stars = [
     spectral: "B2 IV",
     numStars: 3,
     starType: "Blue subgiant",
+    // Illustrative per-component breakdown so the UI renders three circles
+    components: [
+      { name: "A", spec: "B2 IV", visualSize: 20 },
+      { name: "B", spec: "B3 V", visualSize: 14 },
+      { name: "C", spec: "B5 V", visualSize: 12 },
+    ],
     exo: false,
     exoCount: 0,
     notes: "Multiple hot system.",
@@ -490,7 +649,7 @@ const stars = [
     exoCount: 0,
     notes: "Top of Southern Cross.",
   },
-  // --- Additional bright stars (to make 50 total) ---
+  // --- Additional bright stars ---
   {
     name: "Bellatrix",
     constellation: "Orion",
@@ -537,13 +696,20 @@ const stars = [
     mass: 40,
     age: 0.005,
     spectral: "B0 Ia",
-    numStars: 3,
+    // Alnilam is generally treated as a single blue supergiant (B0 Ia).
+    // Earlier dataset incorrectly listed multiple components; update to a
+    // conservative single-star representation and keep distance uncertainty.
+    numStars: 1,
     starType: "Blue supergiant",
     uncertainty: [1], // distance/parallax disagreement in literature
-    sources: ["https://en.wikipedia.org/wiki/Alnilam"],
+    sources: [
+      "https://en.wikipedia.org/wiki/Alnilam",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Epsilon+Orionis",
+    ],
     exo: false,
     exoCount: 0,
-    notes: "Middle star of Orion's Belt.",
+    notes:
+      "Middle star of Orion's Belt. Treated as a single blue supergiant in major catalogs; distance estimates vary between sources.",
   },
   {
     name: "Alnitak",
@@ -559,11 +725,24 @@ const stars = [
     spectral: "O9.7 Ib",
     numStars: 3,
     starType: "Blue supergiant",
-    uncertainty: [1, 2], // distance disagreement; multiple components
-    sources: ["https://en.wikipedia.org/wiki/Alnitak"],
+    // Alnitak is a hierarchical triple: Alnitak Aa (primary, O9.5–O9.7 Iab)
+    // with a close companion Ab, plus a wider visual companion B. Add
+    // per-component entries so the UI renders three dots and include
+    // authoritative sources.
+    uncertainty: [1, 2], // distance disagreement; multiplicity details
+    sources: [
+      "https://en.wikipedia.org/wiki/Alnitak",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Zeta+Orionis",
+    ],
+    components: [
+      { name: "Aa", spec: "O9.5 Iab", visualSize: 40 },
+      { name: "Ab", spec: "B1 IV", visualSize: 22 },
+      { name: "B", spec: "B0–B1 III", visualSize: 18 },
+    ],
     exo: false,
     exoCount: 0,
-    notes: "Left-most of Orion's Belt.",
+    notes:
+      "Left-most of Orion's Belt. Alnitak A is itself a close pair (Aa+Ab) with a wider visual B companion; some faint line-of-sight stars are not physically associated.",
   },
   {
     name: "Mintaka",
@@ -577,13 +756,32 @@ const stars = [
     mass: 30,
     age: 0.006,
     spectral: "O9.5 II",
-    numStars: 3,
-    starType: "Blue giant",
-    uncertainty: [1], // Hipparcos vs cluster/Gaia distance discrepancies
-    sources: ["https://en.wikipedia.org/wiki/Mintaka"],
+    // Mintaka (δ Ori) is a complex hierarchical system. Recent references
+    // describe the system as comprising the close eclipsing pair Aa1+Aa2,
+    // a resolved Ab, and additional components C (which itself is a close
+    // binary) and a B component whose physical association is debated.
+    // Represent the commonly cited components conservatively and flag
+    // uncertain associations.
+    numStars: 5,
+    starType: "Multiple (hierarchy)",
+    uncertainty: [1, 2], // distance discrepancies; some companions' association disputed
+    sources: [
+      "https://en.wikipedia.org/wiki/Mintaka",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Delta+Orionis",
+    ],
+    components: [
+      { name: "Aa1", spec: "O9.5 II", visualSize: 40 },
+      { name: "Aa2", spec: "B1 V", visualSize: 30 },
+      { name: "Ab", spec: "B0 IV", visualSize: 22 },
+      // Delta Ori C is often listed as a close binary (Ca+Cb); represent
+      // it here as two components so the UI renders the multiplicity.
+      { name: "Ca", spec: "B-type", visualSize: 16 },
+      { name: "Cb", spec: "B-type", visualSize: 14 },
+    ],
     exo: false,
     exoCount: 0,
-    notes: "Right-most of Orion's Belt.",
+    notes:
+      "Right-most of Orion's Belt. Hierarchical multiple: Aa1+Aa2 (eclipsing), Ab (resolved), and C (itself a close pair); the B component's physical association is debated — see sources.",
   },
   {
     name: "Saiph",
@@ -636,9 +834,23 @@ const stars = [
     spectral: "A2 V",
     numStars: 4,
     starType: "Multiple (quadruple)",
+    // Mizar is a well-known quadruple: ζ1 (Mizar A) = Aa+Ab (both A2Vp)
+    // and ζ2 (Mizar B) = Ba+Bb (Ba shows Am characteristics; Bb is faint).
+    // Add per-component entries so the UI renders four colored dots.
+    sources: [
+      "https://en.wikipedia.org/wiki/Mizar",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Mizar",
+    ],
+    components: [
+      { name: "Aa", spec: "A2Vp", visualSize: 30 },
+      { name: "Ab", spec: "A2Vp", visualSize: 30 },
+      { name: "Ba", spec: "kA1h(eA)mA7IV-V", visualSize: 26 },
+      { name: "Bb", spec: "", visualSize: 12 },
+    ],
     exo: false,
     exoCount: 0,
-    notes: "Part of the Big Dipper; multiple system.",
+    notes:
+      "Quadruple system: Mizar Aa+Ab (A2Vp) and Ba+Bb (Ba: Am, Bb: faint companion). Sources: Wikipedia, SIMBAD.",
   },
   {
     name: "Alioth",
@@ -673,7 +885,29 @@ const stars = [
     starType: "Giant",
     exo: false,
     exoCount: 0,
-    notes: "One of the pointer stars to Polaris.",
+    // Conservative per-component breakdown for the Dubhe system (α UMa).
+    // Literature identifies the bright pair α UMa A (K0 III) + α UMa B (A-type
+    // main-sequence) with a ~44.45 yr orbit, plus a widely-separated F-type
+    // spectroscopic pair (HD 95638) sometimes catalogued as a companion. The
+    // wide pair's membership is debated (~40% chance of being unrelated), so
+    // include an `uncertainty` flag and `sources` for verification.
+    uncertainty: [2], // 2 = multiplicity/association disputed
+    sources: [
+      "https://en.wikipedia.org/wiki/Dubhe",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=alpha+ursae+majoris",
+    ],
+    components: [
+      { name: "A", spec: "K0 III", visualSize: 36 },
+      { name: "B", spec: "A5 V", visualSize: 18 },
+      // The following represent the widely-separated F-type pair (HD 95638),
+      // sometimes treated as α UMa C (itself a short-period spectroscopic
+      // binary). We model them as Ca/Cb for the UI so the system renders as
+      // a quadruple; membership is deliberately flagged as uncertain.
+      { name: "Ca", spec: "F8 V", visualSize: 12 },
+      { name: "Cb", spec: "F8 V", visualSize: 12 },
+    ],
+    notes:
+      "Multiple system: A (K0 III) + B (A-type) with ~44.45 yr orbit; a distant F-type spectroscopic pair (HD 95638) is sometimes catalogued as a companion — membership uncertain. Sources: Wikipedia, SIMBAD.",
   },
   {
     name: "Merak",
@@ -725,7 +959,22 @@ const stars = [
     starType: "Cepheid/supergiant",
     exo: false,
     exoCount: 0,
-    notes: "North Star; Cepheid variable.",
+    // Polaris is a hierarchical triple: the Cepheid primary (Aa) with a
+    // close spectroscopic companion Ab, and a distant resolved companion B.
+    // Distance/parameter estimates have been debated in literature; flag
+    // distance uncertainty conservatively.
+    components: [
+      { name: "Aa", spec: "F7 Ib (Cepheid)", visualSize: 44 },
+      { name: "Ab", spec: "F6 V (spectroscopic)", visualSize: 16 },
+      { name: "B", spec: "F3 V (resolved)", visualSize: 18 },
+    ],
+    uncertainty: [1],
+    sources: [
+      "https://en.wikipedia.org/wiki/Polaris",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Polaris",
+    ],
+    notes:
+      "Triple system: Polaris Aa (Cepheid, F7 Ib) with close companion Ab (spectroscopic) and a distant resolved companion B. Distance and some parameter estimates have varied between studies; see sources.",
   },
   {
     name: "Denebola",
@@ -883,7 +1132,20 @@ const stars = [
     starType: "Eclipsing binary (triple)",
     exo: false,
     exoCount: 0,
-    notes: "Famous eclipsing binary (Beta Persei).",
+    // Algol is a classic hierarchical triple: an eclipsing close pair (Aa1+Aa2)
+    // plus a more distant third component Ab. Add per-component entries
+    // so UI shows three dots and include provenance.
+    components: [
+      { name: "Aa1", spec: "B8 V", visualSize: 30 },
+      { name: "Aa2", spec: "K0 IV", visualSize: 20 },
+      { name: "Ab", spec: "F1 V", visualSize: 22 },
+    ],
+    sources: [
+      "https://en.wikipedia.org/wiki/Algol",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Algol",
+    ],
+    notes:
+      "Triple system: Algol Aa1+Aa2 form the close eclipsing binary; Algol Ab is a third component on a longer orbit. The system defines the 'Algol-type' eclipsing variables — see sources.",
   },
   {
     name: "Schedar",
@@ -918,6 +1180,543 @@ const stars = [
     exo: false,
     exoCount: 0,
     notes: "Part of the W of Cassiopeia.",
+  },
+  // --- Added: next brightest stars ---
+  {
+    name: "Nunki (Sigma Sagittarii)",
+    constellation: "Sagittarius",
+    visibility: "Southern",
+    mag: 2.05,
+    distance: 230,
+    spectral: "B2.5 V",
+    starType: "Main sequence",
+    // Populated from Wikipedia infobox / cited catalogs (see sources).
+    temp: 18890,
+    radius: 4.1,
+    mass: 6.5,
+    age: 0.0314,
+    lum: 631,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Nunki",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Sigma+Sagittarii",
+    ],
+    notes:
+      "Bright B-type main-sequence star in Sagittarius (often called Nunki). Distance and catalog values vary between sources; see source.",
+  },
+  {
+    name: "Mirach (Beta Andromedae)",
+    constellation: "Andromeda",
+    visibility: "Northern",
+    mag: 2.07,
+    distance: 200,
+    spectral: "M0 III",
+    starType: "Red giant",
+    temp: 3762,
+    radius: 86.4,
+    mass: 2.49,
+    age: null,
+    lum: 1675,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Mirach",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Mirach",
+    ],
+    uncertainty: [5],
+    notes:
+      "Red giant (β And). Apparent V varies slightly (reported ~2.01–2.10 in literature). Added SIMBAD as an authoritative catalog link; see sources.",
+  },
+  {
+    name: "Rasalhague (Alpha Ophiuchi)",
+    constellation: "Ophiuchus",
+    visibility: "Northern",
+    mag: 2.07,
+    distance: 47,
+    spectral: "A5 IVnn",
+    starType: "Subgiant",
+    // Rapid rotator (oblate): Wikipedia lists polar/equatorial radii and temperatures.
+    // We store a representative (average) radius and the literature "true" effective
+    // temperature when available. See sources for polar/equatorial breakdown.
+    temp: 8336,
+    radius: 2.623,
+    mass: 2.2,
+    age: 0.77,
+    lum: 31.3,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Rasalhague",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Rasalhague",
+    ],
+    notes:
+      "Rapidly rotating subgiant and the brightest star in Ophiuchus; classifications and distances from catalogs may vary. Added SIMBAD link for catalog photometry.",
+  },
+  {
+    name: "Algieba (Gamma Leonis)",
+    constellation: "Leo",
+    visibility: "Northern",
+    mag: 2.08,
+    distance: 130,
+    spectral: "K0 III",
+    numStars: 2,
+    starType: "Giant (binary)",
+    // Values from Wikipedia infobox / referenced catalog entries (primary component)
+    temp: 4457,
+    radius: 29,
+    mass: 1.66,
+    age: 1.75,
+    lum: 250,
+    components: [
+      { name: "A", spec: "K0 III", visualSize: 30 },
+      { name: "B", spec: "G7 IIIb", visualSize: 22 },
+    ],
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Algieba",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Gamma+Leonis",
+    ],
+    uncertainty: [5],
+    notes:
+      "Bright binary in Leo (γ Leo). Component mags and Hipparcos/ catalogue values differ slightly (see sources); added SIMBAD for photometric/catalog reference.",
+  },
+  {
+    name: "Kochab (Beta Ursae Minoris)",
+    constellation: "Ursa Minor",
+    visibility: "Northern",
+    mag: 2.08,
+    distance: 130,
+    spectral: "K4 III",
+    starType: "Red giant",
+    // Adopted values from Wikipedia table (interferometric/catalog results).
+    temp: 4008,
+    radius: 44.13,
+    mass: 1.3,
+    age: 2.95,
+    lum: 454,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Kochab",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Kochab",
+    ],
+    notes:
+      "Bright K-type giant in Ursa Minor; historic pole-star companion of Polaris in ancient epochs. Added SIMBAD link for catalog photometry.",
+  },
+  // --- Appended additional bright stars ---
+  {
+    name: "Tiaki (Beta Gruis)",
+    constellation: "Grus",
+    visibility: "Southern",
+    mag: 2.15,
+    distance: 170,
+    spectral: "M5 III",
+    starType: "Red giant",
+    temp: 3508,
+    radius: 154,
+    mass: 2.4,
+    age: 0.45,
+    lum: 3221,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Beta_Gruis",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Beta+Gruis",
+    ],
+    notes:
+      "Also known as Tiaki (β Gruis). Bright southern red giant; added for top-60 coverage.",
+  },
+  {
+    name: "Muhlifain (Gamma Centauri)",
+    constellation: "Centaurus",
+    visibility: "Southern",
+    mag: 2.17,
+    distance: 130,
+    spectral: "A0 III",
+    starType: "Giant",
+    temp: 9300,
+    radius: 3.8,
+    mass: 2.8,
+    age: null,
+    lum: 95,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Gamma_Centauri",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Gamma+Centauri",
+    ],
+    notes:
+      "Also called Muhlifain (γ Centauri). Added to extend the dataset to 60 brightest stars.",
+  },
+  {
+    name: "Aspidiske (Iota Carinae)",
+    constellation: "Carina",
+    visibility: "Southern",
+    mag: 2.21,
+    distance: 690,
+    spectral: "A9 Ib",
+    starType: "Supergiant",
+    temp: 7500,
+    radius: 48.25,
+    mass: 6.9,
+    age: 0.056,
+    lum: 4900,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Iota_Carinae",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Iota+Carinae",
+    ],
+    notes:
+      "Proper name Aspidiske (ι Car). Bright southern supergiant; included to reach 60 entries.",
+  },
+  {
+    name: "Suhail (Lambda Velorum)",
+    constellation: "Vela",
+    visibility: "Southern",
+    mag: 2.21,
+    distance: 570,
+    spectral: "K4 Ib",
+    starType: "Bright giant",
+    temp: 3835,
+    radius: 211,
+    mass: 7.0,
+    age: 0.0316,
+    lum: 8300,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Lambda_Velorum",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Lambda+Velorum",
+    ],
+    notes: "Also known as Suhail (λ Velorum). Included for top-60 coverage.",
+  },
+  {
+    name: "Alphecca (Alpha Coronae Borealis)",
+    constellation: "Corona Borealis",
+    visibility: "Northern",
+    mag: 2.23,
+    distance: 75,
+    spectral: "A0 V",
+    starType: "Main sequence",
+    temp: 9700,
+    radius: 3.059,
+    mass: 2.581,
+    age: 0.4,
+    lum: 74,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Alphecca",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Alpha+Coronae+Borealis",
+    ],
+    notes:
+      "Also called Alphecca (α CrB, Gemma). Added to expand to 60 brightest.",
+  },
+  {
+    name: "Almach (Gamma Andromedae)",
+    constellation: "Andromeda",
+    visibility: "Northern",
+    mag: 2.26,
+    distance: 350,
+    spectral: "K3 II",
+    starType: "Bright giant",
+    // Representative values for the bright giant primary (γ1 And)
+    temp: 4248,
+    radius: 98.5,
+    mass: 3.3,
+    age: null,
+    lum: 2987,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Almach",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Gamma+Andromedae",
+    ],
+    notes:
+      "Also called Almach (γ And). Appended so the dataset reaches 60 bright stars.",
+  },
+  {
+    name: "Sadr (Gamma Cygni)",
+    constellation: "Cygnus",
+    visibility: "Northern",
+    mag: 2.23,
+    distance: 1500,
+    spectral: "F8 Iab",
+    starType: "Yellow supergiant",
+    temp: 5790,
+    radius: 183,
+    mass: 14.5,
+    age: 0.012,
+    lum: 33023,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Gamma_Cygni",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Gamma+Cygni",
+    ],
+    notes:
+      "Sadr (γ Cygni), central star of the Northern Cross; bright yellow supergiant. Added to include ranks 61–70.",
+  },
+  {
+    name: "Eltanin (Gamma Draconis)",
+    constellation: "Draco",
+    visibility: "Northern",
+    mag: 2.23,
+    distance: 150,
+    spectral: "K5 III",
+    starType: "Red giant",
+    temp: 3964,
+    radius: 51.8,
+    mass: 2.14,
+    age: 1.3,
+    lum: 598,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Gamma_Draconis",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Gamma+Draconis",
+    ],
+    notes:
+      "Eltanin (γ Draconis), bright K-type giant near the head of Draco. Added to include ranks 61–70.",
+  },
+  // --- Newly added bright stars (next 10 missing from the Wikipedia list) ---
+  {
+    name: "Alnair (Alpha Gruis)",
+    constellation: "Grus",
+    visibility: "Southern",
+    mag: 1.74,
+    distance: 101,
+    lum: 520,
+    temp: 14245,
+    radius: 3.91,
+    mass: 3.82,
+    age: 0.1,
+    spectral: "B6 V",
+    starType: "Main sequence",
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Alpha_Gruis",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Alpha+Gruis",
+    ],
+    notes:
+      "Alnair (α Gru), bright B-type star in Grus; values from Wikipedia infobox and SIMBAD.",
+  },
+  {
+    name: "Wezen (Delta Canis Majoris)",
+    constellation: "Canis Major",
+    visibility: "Southern",
+    mag: 1.83,
+    distance: 1600,
+    lum: 34600,
+    temp: 5818,
+    radius: 188,
+    mass: 14.5,
+    age: 0.012,
+    spectral: "F8 Ia",
+    starType: "Supergiant",
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Delta_Canis_Majoris",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Delta+Canis+Majoris",
+    ],
+    notes:
+      "Wezen (δ CMa) — luminous F-type supergiant. Distance and parameters per Wikipedia; catalog values vary between sources.",
+  },
+  {
+    name: "Sargas (Theta Scorpii)",
+    constellation: "Scorpius",
+    visibility: "Southern",
+    mag: 1.87,
+    distance: 329,
+    lum: 1400,
+    temp: 6294,
+    radius: 31,
+    mass: 3.1,
+    age: null,
+    spectral: "F1 III",
+    starType: "Bright giant",
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Theta_Scorpii",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Theta+Scorpii",
+    ],
+    notes:
+      "Sargas (θ Sco). Rapid rotator with equatorial/polar radius differences; representative average radius stored.",
+  },
+  {
+    name: "Menkalinan (Beta Aurigae)",
+    constellation: "Auriga",
+    visibility: "Northern",
+    mag: 1.9,
+    distance: 81.1,
+    // Representative primary component values (system is an eclipsing binary)
+    lum: 47,
+    temp: 8985,
+    radius: 2.762,
+    mass: 2.389,
+    age: 0.45,
+    spectral: "A1mIV + A1mIV",
+    numStars: 2,
+    starType: "Eclipsing binary",
+    components: [
+      { name: "Aa", spec: "A1mIV", visualSize: 30 },
+      { name: "Ab", spec: "A1mIV", visualSize: 28 },
+    ],
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Beta_Aurigae",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Beta+Aurigae",
+    ],
+    notes:
+      "Menkalinan (β Aur) is a well-studied eclipsing binary; primary-component values used for the system entry.",
+  },
+  {
+    name: "Atria (Alpha Trianguli Australis)",
+    constellation: "Triangulum Australe",
+    visibility: "Southern",
+    mag: 1.91,
+    distance: 391,
+    lum: 4634,
+    temp: 4043,
+    radius: 139,
+    mass: 6.4,
+    age: 0.048,
+    spectral: "K2 IIb-IIIa",
+    starType: "Bright/Red giant",
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Alpha_Trianguli_Australis",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Alpha+Trianguli+Australis",
+    ],
+    notes:
+      "Atria (α TrA) — red bright giant/supergiant; values from Wikipedia infobox and recent literature.",
+  },
+  {
+    name: "Alhena (Gamma Geminorum)",
+    constellation: "Gemini",
+    visibility: "Northern",
+    mag: 1.9,
+    distance: 109,
+    lum: 207.3,
+    temp: 9190,
+    radius: 5.16,
+    mass: 2.81,
+    age: null,
+    spectral: "A0 IV",
+    starType: "Subgiant",
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Gamma_Geminorum",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Gamma+Geminorum",
+    ],
+    notes:
+      "Alhena (γ Gem) — A-type subgiant; representative single-star parameters used.",
+  },
+  {
+    name: "Peacock (Alpha Pavonis)",
+    constellation: "Pavo",
+    visibility: "Southern",
+    mag: 1.94,
+    distance: 179,
+    lum: 2200,
+    temp: 17711,
+    radius: 4.83,
+    mass: 5.91,
+    age: 0.048,
+    spectral: "B3 V",
+    starType: "Main sequence / binary",
+    numStars: 2,
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Alpha_Pavonis",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Alpha+Pavonis",
+    ],
+    notes:
+      "Peacock (α Pav) — bright B-type system; primary-component representative values used.",
+  },
+  {
+    name: "Alsephina (Delta Velorum)",
+    constellation: "Vela",
+    visibility: "Southern",
+    mag: 1.96,
+    distance: 80.6,
+    lum: 67,
+    temp: 9440,
+    radius: 2.88,
+    mass: 2.43,
+    age: 0.4,
+    spectral: "A1 Va",
+    numStars: 3,
+    starType: "Multiple (eclipsing+visual)",
+    components: [
+      { name: "Aa", spec: "A2 IV", visualSize: 30 },
+      { name: "Ab", spec: "A4 V", visualSize: 26 },
+      { name: "B", spec: "F8 V", visualSize: 14 },
+    ],
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Delta_Velorum",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Delta+Velorum",
+    ],
+    notes:
+      "Alsephina (δ Vel) — multiple system (eclipsing pair + visual components); primary component numbers used as representative.",
+  },
+  {
+    name: "Mirzam (Beta Canis Majoris)",
+    constellation: "Canis Major",
+    visibility: "Southern",
+    mag: 1.99,
+    distance: 490,
+    lum: 25700,
+    temp: 25180,
+    radius: 8.44,
+    mass: 13,
+    age: 0.013,
+    spectral: "B1 II-III",
+    starType: "Bright giant",
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Beta_Canis_Majoris",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Beta+Canis+Majoris",
+    ],
+    notes:
+      "Mirzam (β CMa) — Beta Cephei variable; values from Wikipedia infobox and SIMBAD.",
+  },
+  {
+    name: "Naos (Zeta Puppis)",
+    constellation: "Puppis",
+    visibility: "Southern",
+    mag: 2.25,
+    distance: 1080,
+    // bolometric luminosity per literature; distance remains debated in sources
+    lum: 446700,
+    temp: 40000,
+    radius: 13.72,
+    mass: 25.3,
+    age: 0.003,
+    spectral: "O4 If(n)p",
+    starType: "Blue supergiant",
+    uncertainty: [1],
+    exo: false,
+    exoCount: 0,
+    sources: [
+      "https://en.wikipedia.org/wiki/Zeta_Puppis",
+      "http://simbad.u-strasbg.fr/simbad/sim-id?Ident=Zeta+Puppis",
+    ],
+    notes:
+      "Naos (ζ Pup) — hot O-type supergiant; distance and bolometric luminosity sensitive to adopted parallax (see sources).",
   },
 ];
 
