@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Interactive Star Catalog — 50 Bright Stars</title>
+  <title>Interactive Star Catalog — Brightest Stars</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -28,7 +28,7 @@
 <body class="bg-slate-50 text-slate-900">
   <main class="max-w-7xl xl:max-w-screen-2xl mx-auto p-6 w-full">
     <header class="mb-6">
-      <h1 class="text-3xl font-bold">Interactive Star Catalog — 50 Bright Stars</h1>
+      <h1 class="text-3xl font-bold">Interactive Star Catalog — <span id="star-count">0</span> Bright Stars</h1>
       <p class="text-slate-600 mt-2">Click a column header to sort. Use the checkboxes to include stars visible from the
         Northern and/or Southern sky. Values are approximate, rounded; luminosity in solar units (L☉), radius in solar
         radii (R☉), mass in solar masses (M☉), age in billions of years (Gyr).</p>
@@ -95,13 +95,10 @@
                   class="sort-ind"></span></button></th>
             <th class="p-3"><button data-key="starType" class="font-semibold">Star type<span
                   class="sort-ind"></span></button></th>
-            <th class="p-3"><button data-key="numStars" class="font-semibold"># Stars<span
-                  class="sort-ind"></span></button></th>
-            <th class="p-3"><button data-key="exo" class="font-semibold">Exoplanets?<span
-                  class="sort-ind"></span></button></th>
-            <th class="p-3"><button data-key="exoCount" class="font-semibold"># Planets<span
-                  class="sort-ind"></span></button></th>
-            <th class="p-3"><button data-key="notes" class="font-semibold">Notes<span class="sort-ind"></span></button>
+            <!-- Exoplanets column removed; planet details are shown in the Notes popup -->
+            <!-- # Planets column removed per user request; planet info will be moved into Notes popup -->
+            <th class="p-3" style="min-width:20rem;"><button data-key="notes" class="font-semibold">Notes<span
+                  class="sort-ind"></span></button>
             </th>
           </tr>
         </thead>
@@ -242,6 +239,29 @@
       }
     }
 
+    // Return a simple luminosity/class multiplier to make pictorial dots
+    // reflect relative sizes: supergiants >> giants > main-sequence > dwarfs.
+    // This is intentionally heuristic and conservative — it's only used to
+    // make the dots look reasonable relative to one another (not to scale).
+    function luminosityMultiplier(specStr, starTypeStr) {
+      const spec = (specStr || '').toString().toUpperCase()
+      const st = (starTypeStr || '').toString().toUpperCase()
+      // Make the multipliers more conservative so circles remain pictorial
+      // and don't dominate the layout. We'll rely primarily on these
+      // modest factors and apply a separate, compressed radius-based
+      // adjustment where needed.
+      if (/SUPERGIANT|RED SUPERGIANT|YELLOW SUPERGIANT/i.test(st) || /IAB|IA|IB|SUPERGIANT/.test(spec)) return 2.0
+      if (/BRIGHT GIANT|BRIGHT-GIANT/i.test(st) || /\bII\b/.test(spec)) return 1.8
+      if (/GIANT/i.test(st) || /\bIII\b/.test(spec)) return 1.4
+      if (/SUBGIANT/i.test(st) || /\bIV\b/.test(spec)) return 1.15
+      if (/WHITE\s*-?DWARF/i.test(st) || /DA|DB|DQ|DC|DZ|D[A-Z]/.test(spec)) return 0.6
+      // Main-sequence / dwarfs / generic
+      if (/MAIN|V\b/.test(st) || /\bV\b/.test(spec)) return 1.0
+      // Fallback: slightly upscale for luminous spectral letters (O/B)
+      if (/O|B/.test(spec)) return 1.2
+      return 1.0
+    }
+
     // Ensure each star object has a numeric `numStars` property.
     // Only compute/assign `starType` when the data does not already provide one.
     // This preserves explicit/descriptive values written in `stars-data.js` (e.g. "Multiple (sextuple)").
@@ -252,8 +272,22 @@
         // Only fill in when missing/placeholder
         s.starType = mostMassiveType(s)
       }
+      // Ensure exoCount is a numeric field used for the "Exoplanets (confirmed)" column.
+      if (!Number.isFinite(s.exoCount)) s.exoCount = s.exo ? 1 : 0
       // otherwise keep the author-provided `starType` exactly as given
     })
+
+    // Update the page title and header with the current number of stars in the
+    // dataset. This reads the global `stars` array (loaded from `stars-data.js`).
+    function updateStarCount() {
+      const n = Array.isArray(stars) ? stars.length : 0
+      const el = document.getElementById('star-count')
+      if (el) el.textContent = String(n)
+      document.title = `Interactive Star Catalog — ${n} Brightest Stars`
+    }
+
+    // Set initial count immediately after dataset processing.
+    updateStarCount()
 
     function visibleFilter(s) {
       const north = chkNorth.checked
@@ -289,14 +323,20 @@
     function render() {
       const rows = currentRows()
       tbody.innerHTML = rows.map(s => {
-        // For the user's test: show spectral-colored dots in the first column
-        // for any star that provides a `components` array. This enables Acrux and
-        // Castor (and any future systems) to render one dot per component.
-        const showDot = Array.isArray(s.components) && s.components.length > 0
+        // Show spectral-colored dots in the first column for either:
+        //  - systems that provide a `components` array (one dot per component), or
+        //  - single-star systems (numStars === 1) even when `components` is absent.
+        // This avoids mass-editing `stars-data.js` while ensuring single stars
+        // display a representative colored dot.
+        const hasComponents = Array.isArray(s.components) && s.components.length > 0
+        const isSingle = displayNumStars(s) === 1
+        const showDot = hasComponents || isSingle
         let dotHtml = ''
         if (showDot) {
-          const comps = Array.isArray(s.components) && s.components.length ? s.components : null
-          const count = comps ? comps.length : (displayNumStars(s) || 1)
+          const comps = hasComponents ? s.components : null
+          // If components exist, render one dot per component. Otherwise,
+          // render a single dot for the lone star using the system spectral type.
+          const count = comps ? comps.length : 1
           let dots = ''
           // Special-case: for Castor we want all component dots to be small
           // and uniform (the user prefers six small stars). Detect by name.
@@ -321,15 +361,42 @@
             const color = colorForSpectral(letter)
             // Determine size: prefer explicit visualSize, else for Castor fallback
             // to small uniform size if desired, otherwise use spectral size.
-            let size = forcedSize != null ? forcedSize : (isCastor ? 10 : sizeForSpectral(letter))
-            // If the provided visualSize is 0 or falsy, fall back to spectral size
-            if (!size) size = sizeForSpectral(letter)
+            let baseSize = forcedSize != null ? forcedSize : (isCastor ? 10 : sizeForSpectral(letter))
+            if (!baseSize) baseSize = sizeForSpectral(letter)
+            // Apply a luminosity/class multiplier so supergiants and giants
+            // get visibly larger dots than main-sequence stars of the same
+            // spectral letter. Use component-spec when available, else system
+            // spectral/starType as fallback. To keep representations pictorial
+            // (not to-scale), blend this spectral/multiplicity-based size with
+            // a compressed radius-derived score so very large physical radii
+            // (e.g., Betelgeuse) influence the dot but do not explode it.
+            const compSpecForMult = (compSpec && compSpec.toString().trim()) || s.spectral || s.starType || ''
+            const mult = luminosityMultiplier(compSpecForMult, s.starType)
+
+            // Base pictorial size derived from spectral letter and luminosity class
+            const pictorial = baseSize * mult
+
+            // Compressed radius score: uses the system radius (most components
+            // don't list individual radii). We compress via log10 and map to a
+            // modest range so huge radii don't create gigantic circles.
+            const sysRadius = Number(s.radius) || 1
+            const cappedRadius = Math.min(sysRadius, 3000) // guard against absurd values
+            const radiusScore = 8 + 9 * Math.log10(Math.max(1, cappedRadius)) // typical -> 8..~40
+
+            // Blend pictorial and radius scores: weight radius somewhat higher
+            // so truly enormous stars are recognizable, but keep everything
+            // within a conservative visual range.
+            let size = Math.round(0.4 * pictorial + 0.6 * radiusScore)
+
+            // Clamp to reasonable visual bounds to avoid layout issues.
+            size = Math.min(Math.max(size, 8), 44)
             const r = Math.max(2, Math.round(size / 2) - 1)
             // Add title for accessibility / quick tooltip with component name/spec
             let titleAttr = ''
             if (compName || compSpec) titleAttr = ' title="' + (compName ? compName + ' — ' : '') + compSpec + '"'
             dots += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + (r * 2 + 4) + ' ' + (r * 2 + 4) + '" xmlns="http://www.w3.org/2000/svg" class="rounded-full"' + titleAttr + '>'
-            dots += '<circle cx="' + (r + 2) + '" cy="' + (r + 2) + '" r="' + r + '" fill="' + color + '" stroke="#222" stroke-opacity="0.12"/>'
+            // Slightly stronger outline so pale fills (A/B/F) remain visible on a light background
+            dots += '<circle cx="' + (r + 2) + '" cy="' + (r + 2) + '" r="' + r + '" fill="' + color + '" stroke="#0f172a" stroke-opacity="0.35" stroke-width="0.8"/>'
             dots += '</svg>'
             if (i < count - 1) dots += '<span class="mx-0.5" aria-hidden></span>'
           }
@@ -350,25 +417,51 @@
           <td class="p-3 text-right">${formatNum(s.mass)}</td>
           <td class="p-3 text-right">${formatNum(s.age)}</td>
           <td class="p-3">${s.spectral}</td>
-          <td class="p-3">${s.starType}</td>
-          <td class="p-3">${formatBool(s.exo)}</td>
-          <td class="p-3 text-right">${s.exoCount}</td>
-          <td class="p-3">
+          <td class="p-3">${(() => {
+            // If the system provides a `components` array, list each
+            // component's spectral/type string so users can see the
+            // composition at a glance. Otherwise fall back to the
+            // author-provided `starType`.
+            if (Array.isArray(s.components) && s.components.length) {
+              return s.components.map(c => {
+                if (typeof c === 'string') return c
+                // prefer an explicit spec, otherwise the component name
+                return (c.spec && c.spec.toString()) || (c.name && c.name.toString()) || '—'
+              }).join(', ')
+            }
+            return s.starType || '—'
+          })()}</td>
+          <!-- Exoplanet count column removed; include planet info inside Notes popup below -->
+          <td class="p-3" style="min-width:20rem;">
             <div class="relative inline-block group" tabindex="0">
-              <span>${s.notes || ''}</span>
-              ${s.uncertainty && s.uncertainty.length ? (
-            '<span class="ml-2 text-amber-600 font-semibold" aria-hidden>⚠</span>' +
-            '<div class="absolute z-10 left-0 mt-2 w-72 p-3 rounded-lg bg-slate-800 text-white text-xs shadow-lg opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100 group-hover:pointer-events-auto hover:opacity-100 hover:pointer-events-auto focus:opacity-100 focus:pointer-events-auto" role="dialog" aria-hidden="true">' +
-            '<div class="font-semibold">Uncertainty</div>' +
-            '<div class="mt-1">' + uncertaintyText(s) + '</div>' +
-            (s.sources ? ('<div class="mt-2 text-xxs text-slate-300"><a href="' + s.sources[0] + '" target="_blank" rel="noopener" class="underline">source</a></div>') : '') +
-            '</div>'
-          ) : ''}
+              <!-- notes preview (short) -->
+              ${(() => {
+            const full = (s.notes || '').toString()
+            // Append planet info into the full notes for visibility
+            let extras = ''
+            if (s.exoCount && Number(s.exoCount) > 0) extras += `Planets: ${s.exoCount}. `
+            else if (s.exo) extras += `Planets: yes. `
+            const preview = (full + ' ' + extras).trim().slice(0, 80)
+            const more = (full + ' ' + extras).trim()
+            // build popup content: notes + uncertainty + first source link if present
+            let popup = '<div class="font-semibold">Details</div>' + '<div class="mt-1 text-sm">' + (more || '—') + '</div>'
+            if (s.uncertainty && s.uncertainty.length) {
+              popup += '<div class="mt-2 font-semibold">Uncertainty</div><div class="mt-1 text-sm">' + uncertaintyText(s) + '</div>'
+            }
+            if (s.sources && s.sources.length) {
+              popup += '<div class="mt-2 text-xxs text-slate-300"><a href="' + s.sources[0] + '" target="_blank" rel="noopener" class="underline">source</a></div>'
+            }
+            return '<span class="text-sm text-slate-700">' + preview + (more.length > 80 ? '…' : '') + '</span>' +
+              '<div class="absolute z-10 left-0 mt-2 w-80 max-w-[90vw] p-3 rounded-lg bg-white text-slate-900 text-sm shadow-sm border border-slate-100 opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-100 group-hover:pointer-events-auto hover:opacity-100 hover:pointer-events-auto focus:opacity-100 focus:pointer-events-auto" role="dialog" aria-hidden="true">' + popup + '</div>'
+          })()}
             </div>
           </td>
         </tr>
       `}).join('')
       updateSortIndicators()
+      // Keep the header/title in sync with the dataset each time we render
+      // (useful if the stars array is modified programmatically at runtime).
+      if (typeof updateStarCount === 'function') updateStarCount()
     }
 
     function updateSortIndicators() {

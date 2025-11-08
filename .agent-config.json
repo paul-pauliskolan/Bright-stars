@@ -1,0 +1,5 @@
+{
+  "allowWebFetch": true,
+  "fetchOnEdit": true,
+  "notes": "When true, the assistant will automatically fetch web sources (Wikipedia/SIMBAD/etc.) when making data verification or conservative edits. You can change this to false to disable automatic fetching."
+}
