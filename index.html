@@ -22,11 +22,16 @@
       margin-left: .25rem;
       opacity: .6;
     }
+
+    /* Ensure table cells align content to top and fill full height */
+    tbody td {
+      vertical-align: top;
+    }
   </style>
 </head>
 
 <body class="bg-slate-50 text-slate-900">
-  <main class="max-w-7xl xl:max-w-screen-2xl mx-auto p-6 w-full">
+  <main class="max-w-full mx-auto p-6 w-full">
     <header class="mb-6">
       <h1 class="text-3xl font-bold">Interactive Star Catalog — <span id="star-count">0</span> Bright Stars</h1>
       <p class="text-slate-600 mt-2">Click a column header to sort. Use the checkboxes to include stars visible from the
@@ -97,7 +102,7 @@
                   class="sort-ind"></span></button></th>
             <!-- Exoplanets column removed; planet details are shown in the Notes popup -->
             <!-- # Planets column removed per user request; planet info will be moved into Notes popup -->
-            <th class="p-3" style="min-width:20rem;"><button data-key="notes" class="font-semibold">Notes<span
+            <th class="p-3" style="min-width:15rem;"><button data-key="notes" class="font-semibold">Notes<span
                   class="sort-ind"></span></button>
             </th>
           </tr>
@@ -432,7 +437,7 @@
             return s.starType || '—'
           })()}</td>
           <!-- Exoplanet count column removed; include planet info inside Notes popup below -->
-          <td class="p-3" style="min-width:20rem;">
+          <td class="p-3" style="min-width:15rem;">
             <div class="relative inline-block group" tabindex="0">
               <!-- notes preview (short) -->
               ${(() => {
